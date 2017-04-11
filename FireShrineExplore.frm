@@ -1,8 +1,13 @@
+// Role & Skill
 // 1 || 2
 // 3 || 4
 // 5 || 6
-
-
+Dim Skill1stIconPX = 60, Skill1stIconPY = 850
+Dim Skill2ndIconPX = 410, Skill2ndIconPY = 850
+Dim Skill3rdIconPX = 60, Skill3rdIconPY = 970
+Dim Skill4thIconPX = 410, Skill4thIconPY = 970
+Dim Skill5thIconPX = 60, Skill5thIconPY = 850
+Dim Skill6thIconPX = 410, Skill6thIconPY = 1090
 
 Dim Role1stIconPX = 140, Role1stIconPY = 850
 Dim Role2ndIconPX = 440, Role2ndIconPY = 850
@@ -11,16 +16,22 @@ Dim Role4thIconPX = 440, Role4thIconPY = 980
 Dim Role5thIconPX = 140, Role5thIconPY = 1110
 Dim Role6thIconPX = 440, Role6thIconPY = 1110
 
-Dim MaxTimer = 50
-Dim ClickDelay = 200
+Dim MaxTimer = 30
+Dim MaxGoingRound = 20
+Dim ClickDelay = 500
 
 Dim FirstMapCount = 14
 Dim SecondMapCount = 15
 
+Dim ChangeMap = false
+
+Dim Xon = 4
+
 //////////
 // Main //
 //////////
-ExploreFirstMap()
+
+//ExploreFirstMap()
 
 ExploreSecondMap()
 
@@ -29,40 +40,66 @@ ExploreSecondMap()
 //////////
 /////////////////////////////////////////////////////////////
 Function ExploreSecondMap()
-  Dim Timer
-  Timer = 0
+  Dim Count
+  Count = 0
   Do
   Call MovingSecondMap()
+  If ChangeMap = true Then 
+  		ChangeMap = false
+    	Exit Function
+   End If
   Call XonAttack()
-  Timer = Timer + 1
-  Loop While Timer < SecondMapCount
+  Count = Count + 1
+  Loop While Count < SecondMapCount
 End Function
 /////////////////////////////////////////////////////////////
 Function ExploreFirstMap()
-  Dim Timer
-  Timer = 0
+  Dim Count
+  
+  Count = 0
   Do
     Call MovingFirstMap()
+    If ChangeMap = true Then 
+    	ChangeMap = false
+    	Exit Function
+    End If
     Call XonAttack()
-    Timer = Timer + 1
-  Loop While Timer < FirstMapCount
+    Count = Count + 1
+  Loop While Count < FirstMapCount
 End Function
 /////////////////////////////////////////////////////////////
 Function XonAttack()
-  Call SlideAblity(4)
+Dim Summon = false
+  Call SlideSkill(Xon)
   Delay 500
-  Call ClickAbility()
+  // summon can't evoke 404|848|0808FF
+  If CmpColorEx("404|848|0808FF", 0.9) = 0 Then 
+  	Summon = true
+  	TracePrint "(XonAttack)Can EvokeSummon now"
+  End If
+  
+  Call ClickSkill(Xon)
   Delay 500
-  Tap Role4thIconPX, Role4thIconPY
+  If Summon = true Then 
+  	EvokeSummon (2)
+  	Summon = false
+  	TracePrint "(XonAttack)EvokeSummon"
+  End If
+  
+  ClickRole(Xon)
   Delay 500
+  
+  // ClickAuto
   Tap 86, 1234
-  Delay 500
+  Delay ClickDelay
   Call WaitFinishedFight()
 End Function
 /////////////////////////////////////////////////////////////
 Function MovingFirstMap()
   Dim result
+  Dim Timer
   TracePrint "(MovingFirstMap)Start"
+  Timer = 0
   Do
     result = CmpColorEx("537|1247|72BFE6", 0.9)
     If result = 1 Then 
@@ -71,15 +108,22 @@ Function MovingFirstMap()
     Else 
       Exit Do
     End If
-  Loop
+    Timer = Timer + 1
+  Loop While Timer < MaxGoingRound
+  
+  If Timer >= MaxGoingRound Then 
+	ChangeMap = true
+	TracePrint "(MovingFirstMap)ChangeMap = true"
+End If
 
   TracePrint "(MovingFirstMap)Success"
 End Function
 /////////////////////////////////////////////////////////////
 Function MovingSecondMap()
 Dim result
-
+Dim Timer
 TracePrint "(MovingSecondMap)Start"
+Timer = 0
 Do
 	result = CmpColorEx("537|1247|72BFE6", 0.9)
 	If result = 1 Then 
@@ -88,7 +132,13 @@ Do
 	Else 
 	Exit Do
 	End If
-Loop
+	Timer = Timer + 1
+Loop While Timer < MaxGoingRound
+
+If Timer >= MaxGoingRound Then 
+	ChangeMap = true
+	TracePrint "(MovingSecondMap)ChangeMap = true"
+End If
 
 TracePrint "(MovingSecondMap)Success"
 End Function
@@ -96,11 +146,13 @@ End Function
 Function MovingUp(px, py, color)
   Dim cmpclr = px & "|" & py & "|" & color
   TracePrint "(MovingUp)"
+  If CmpColorEx(cmpclr, 0.9) = 1 Then 
+  Exit Function
+  End If
   TouchDown 358,848, 1
   TouchMove 358, 448, 1, 200
   Do
   If CmpColorEx(cmpclr, 0.9) = 1 Then 
-  //If CmpColorEx("152|171|4FE8FF", 0.9) = 1 Then 
   Exit Do
   End If
   If CmpColorEx("537|1247|72BFE6", 0.9) = 0 Then 
@@ -114,10 +166,13 @@ End Function
 Function MovingDown(px, py, color)
   Dim cmpclr = px & "|" & py & "|" & color
   TracePrint "(MovingDown)"
+  If CmpColorEx(cmpclr, 0.9) = 1 Or CmpColorEx("165|206|4EE8FF", 0.9) = 1 Then
+    Exit Function
+  End If
   TouchDown 358,448, 1
   TouchMove 358, 848, 1, 200
   Do
-  If CmpColorEx(cmpclr, 0.9) = 1 Then
+  If CmpColorEx(cmpclr, 0.9) = 1 Or CmpColorEx("165|206|4EE8FF", 0.9) = 1 Then
     Exit Do
   End If
   If CmpColorEx("537|1247|72BFE6", 0.9) = 0 Then 
@@ -138,7 +193,7 @@ Timer = 0
 
 Do
 
-msg = "(WaitFinishedFight)Waitting..." & CStr(Timer) & " secs"
+msg = "(WaitFinishedFight)Waitting..." & Timer & " secs"
 TracePrint msg
 result = CmpColorEx("311|406|FFF7EE", 0.9)
 	If result = 0 Then 
@@ -162,20 +217,36 @@ TracePrint "(WaitFinishedFight)Success"
 End Function
 
 /////////////////////////////////////////////////////////////
-Function SlideAblity(RoleNumber)
+Function SlideSkill(RoleNumber)
   Dim Timer
-  If RoleNumber = 1 Then
-  Else If RoleNumber = 2 Then
-  Else If RoleNumber = 3 Then
-  Else If RoleNumber = 4 Then
-  Else If RoleNumber = 5 Then
-  Else If RoleNumber = 6 Then
+  Dim pX, pY
+  If RoleNumber = 1 Then 
+  	pX = Role1stIconPX
+  	pY = Role1stIconPY
+  ElseIf RoleNumber = 2 Then
+  	pX = Role2ndIconPX
+  	pY = Role2ndIconPY
+  ElseIf RoleNumber = 3 Then
+  	pX = Role3rdIconPX
+  	pY = Role3rdIconPY
+  ElseIf RoleNumber = 4 Then
+  	pX = Role4thIconPX
+  	pY = Role4thIconPY
+  ElseIf RoleNumber = 5 Then
+  	pX = Role5thIconPX
+  	pY = Role5thIconPY
+  ElseIf RoleNumber = 6 Then
+  	pX = Role6thIconPX
+  	pY = Role6thIconPY
   End If
-  Dim result
+  
+  // Role 4th's sword 379,909, FFFFFF
+  // Role 2nd's sword 379,780, FFFFFF
+  
   Timer = 0
+  // Wait into fight scane
   Do
-  result = CmpColorEx("439|961|FFFFFF", 0.9)
-  If result = 1 Then 
+  If CmpColorEx("384|898|494949", 0.9) = 1 Then 
     Exit Do 
   Else 
     Timer = Timer + 1
@@ -184,43 +255,101 @@ Function SlideAblity(RoleNumber)
   Loop While Timer < MaxTimer
 
   If Timer >= MaxTimer Then 
-    TracePrint "(SlideAblity)Exit"
+    TracePrint "(SlideSkill)Exit"
     Exit Function
   End If
 
-  // slide to ability
-  TouchDown 439, 961, 1
-  TouchMove 593, 966, 1, 200
+  // Slide to skill
+  // Role MP 588|759|DAC2B3
+  Timer = 0
+  Do
+  TouchDown pX, pY, 1
+  TouchMove pX + 150, pY, 1, 200
+  If CmpColorEx("588|759|DAC2B3", 0.9) = 1 Then 
+  	Exit Do
+  Else 
+  	Timer = Timer + 1
+  End If
+  Loop While Timer < MaxTimer
+  
+  If Timer >= MaxTimer Then 
+    TracePrint "(SlideSkill)Exit"
+    Exit Function
+  End If
 
-  TracePrint "(SlideAblity)Success"
+  TracePrint "(SlideSkill)Success"
 End Function
 /////////////////////////////////////////////////////////////
-
-
-Function ClickAbility()
+Function ClickRole(RoleNumber)
+Dim pX, pY
+TracePrint "(ClickRole)RoleNumber = " & RoleNumber 
+  If RoleNumber = 1 Then 
+  	pX = Role1stIconPX
+  	pY = Role1stIconPY
+  ElseIf RoleNumber = 2 Then
+  	pX = Role2ndIconPX
+  	pY = Role2ndIconPY
+  ElseIf RoleNumber = 3 Then
+  	pX = Role3rdIconPX
+  	pY = Role3rdIconPY
+  ElseIf RoleNumber = 4 Then
+  	pX = Role4thIconPX
+  	pY = Role4thIconPY
+  ElseIf RoleNumber = 5 Then
+  	pX = Role5thIconPX
+  	pY = Role5thIconPY
+  ElseIf RoleNumber = 6 Then
+  	pX = Role6thIconPX
+  	pY = Role6thIconPY
+  End If
+  
+  Tap pX, pY
+  Delay ClickDelay
+  
+  End Function
+Function ClickSkill(SkillNumber)
 Dim Timer
 Dim result
+Dim pX, pY
+TracePrint "(ClickSkill)SkillNumber = " & SkillNumber 
+  If SkillNumber = 1 Then 
+  	pX = Skill1stIconPX
+  	pY = Skill1stIconPY
+  ElseIf SkillNumber = 2 Then
+  	pX = Skill2ndIconPX
+  	pY = Skill2ndIconPY
+  ElseIf SkillNumber = 3 Then
+  	pX = Skill3rdIconPX
+  	pY = Skill3rdIconPY
+  ElseIf SkillNumber = 4 Then
+  	pX = Skill4thIconPX
+  	pY = Skill4thIconPY
+  ElseIf SkillNumber = 5 Then
+  	pX = Skill5thIconPX
+  	pY = Skill5thIconPY
+  ElseIf SkillNumber = 6 Then
+  	pX = Skill6thIconPX
+  	pY = Skill6thIconPY
+  End If
 
+// frame 384|898|494949
 Timer = 0
 Do
-result = CmpColorEx("71|978|41DBF9", 0.9)
-If result = 1 Then
-	Exit Do
+If CmpColorEx("384|898|494949", 0.9) = 1 Then 
+Exit Do
 Else 
-	Timer = Timer + 1
-	Delay 500
+Tap pX, pY
+Delay ClickDelay
+Timer = Timer + 1
 End If
 Loop While Timer < MaxTimer
 
 If Timer >= MaxTimer Then 
-	TracePrint "(ClickAbility)Exit"
-	Exit Function
-End If
+    TracePrint "(ClickSkill)Exit"
+    Exit Function
+  End If
 
-Tap 71, 978
-Delay ClickDelay
-
-TracePrint "(ClickAbility)Success"
+TracePrint "(ClickSkill)Success"
 End Function
 
 /////////////////////////////////////////////////////////////
@@ -249,3 +378,11 @@ End If
 End Function
 
 /////////////////////////////////////////////////////////////
+Function EvokeSummon(RoleNumber)
+SlideSkill (RoleNumber)
+Delay ClickDelay
+ClickSkill (2)
+Delay ClickDelay
+ClickRole (RoleNumber)
+Delay ClickDelay
+End Function
