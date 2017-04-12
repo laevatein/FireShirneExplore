@@ -17,7 +17,7 @@ Dim Role5thIconPX = 140, Role5thIconPY = 1110
 Dim Role6thIconPX = 440, Role6thIconPY = 1110
 
 Dim MaxTimer = 30
-Dim MaxGoingRound = 20
+Dim MaxGoingRound = 12
 Dim ClickDelay = 500
 
 Dim FirstMapCount = 14
@@ -81,7 +81,7 @@ Dim Summon = false
   Call ClickSkill(Xon)
   Delay 500
   If Summon = true Then 
-  	EvokeSummon (2)
+  	EvokeSummon (3)
   	Summon = false
   	TracePrint "(XonAttack)EvokeSummon"
   End If
@@ -192,16 +192,13 @@ Dim msg
 Timer = 0
 
 Do
-
 msg = "(WaitFinishedFight)Waitting..." & Timer & " secs"
 TracePrint msg
-result = CmpColorEx("311|406|FFF7EE", 0.9)
-	If result = 0 Then 
-		Delay 1000
-		Timer = Timer + 1
+	If CmpColorEx("290|647|FFF7EE", 0.9) = 1 And CmpColorEx("430|647|FFF7EE", 0.9) = 1 And CmpColorEx("311|406|FFF7EE", 0.9) = 1 Then 
+		Exit Do
 	Else 
 		Delay 1000
-		Exit Do
+		Timer = Timer + 1
 	End If
 Loop While Timer < WaitTimer
 
