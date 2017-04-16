@@ -17,21 +17,23 @@ Dim Role5thIconPX = 140, Role5thIconPY = 1110
 Dim Role6thIconPX = 440, Role6thIconPY = 1110
 
 Dim MaxTimer = 30
-Dim MaxGoingRound = 12
+Dim MaxGoingRound = 15
 Dim ClickDelay = 500
 
-Dim FirstMapCount = 14
+Dim FirstMapCount = 10
 Dim SecondMapCount = 15
 
 Dim ChangeMap = false
 
-Dim Xon = 4
+Dim Xon = 2
+Dim XonWaylay = 6
+Dim SummonRole = 6
 
 //////////
 // Main //
 //////////
 
-//ExploreFirstMap()
+ExploreFirstMap()
 
 ExploreSecondMap()
 
@@ -78,16 +80,16 @@ Dim Summon = false
   	TracePrint "(XonAttack)Can EvokeSummon now"
   End If
   
-  Call ClickSkill(Xon)
+  Call ClickSkill(XonWaylay)
   Delay 500
   If Summon = true Then 
-  	EvokeSummon (3)
+  	EvokeSummon (SummonRole)
   	Summon = false
   	TracePrint "(XonAttack)EvokeSummon"
   End If
   
-  ClickRole(Xon)
-  Delay 500
+  //ClickRole(Xon)
+  //Delay 500
   
   // ClickAuto
   Tap 86, 1234
@@ -103,9 +105,10 @@ Function MovingFirstMap()
   Do
     result = CmpColorEx("537|1247|72BFE6", 0.9)
     If result = 1 Then 
-      call MovingUp (152, 171, "4FE8FF")
-      call MovingDown(152, 271, "4FE8FF")
+      Call MovingDown(151,215, "4FE8FF")
+      call MovingUp (152, 160, "4FE8FF")
     Else 
+   	  MovingUp (152,154, "4D2E8E")
       Exit Do
     End If
     Timer = Timer + 1
@@ -127,7 +130,7 @@ Timer = 0
 Do
 	result = CmpColorEx("537|1247|72BFE6", 0.9)
 	If result = 1 Then 
-	MovingUp (152, 171, "4D2E8D")
+	MovingUp (120,190, "9A5D1D")
 	MovingDown(152, 271, "50E8FF")
 	Else 
 	Exit Do
@@ -146,16 +149,16 @@ End Function
 Function MovingUp(px, py, color)
   Dim cmpclr = px & "|" & py & "|" & color
   TracePrint "(MovingUp)"
-  If CmpColorEx(cmpclr, 0.9) = 1 Then 
+  If CmpColorEx(cmpclr, 0.8) = 1 Then 
   Exit Function
   End If
   TouchDown 358,848, 1
-  TouchMove 358, 448, 1, 200
+  TouchMove 358, 448, 1, 100
   Do
-  If CmpColorEx(cmpclr, 0.9) = 1 Then 
+  If CmpColorEx(cmpclr, 0.8) = 1 Then 
   Exit Do
   End If
-  If CmpColorEx("537|1247|72BFE6", 0.9) = 0 Then 
+  If CmpColorEx("537|1247|72BFE6", 0.8) = 0 Then 
   Exit Do
   End If
   Loop
@@ -166,16 +169,16 @@ End Function
 Function MovingDown(px, py, color)
   Dim cmpclr = px & "|" & py & "|" & color
   TracePrint "(MovingDown)"
-  If CmpColorEx(cmpclr, 0.9) = 1 Or CmpColorEx("165|206|4EE8FF", 0.9) = 1 Then
+  If CmpColorEx(cmpclr, 0.8) = 1 Or CmpColorEx("165|206|4EE8FF", 0.9) = 1 Then
     Exit Function
   End If
   TouchDown 358,448, 1
-  TouchMove 358, 848, 1, 200
+  TouchMove 358, 848, 1, 100
   Do
-  If CmpColorEx(cmpclr, 0.9) = 1 Or CmpColorEx("165|206|4EE8FF", 0.9) = 1 Then
+  If CmpColorEx(cmpclr, 0.8) = 1 Or CmpColorEx("165|206|4EE8FF", 0.9) = 1 Then
     Exit Do
   End If
-  If CmpColorEx("537|1247|72BFE6", 0.9) = 0 Then 
+  If CmpColorEx("537|1247|72BFE6", 0.8) = 0 Then 
     Exit Do
   End If
   Loop
@@ -186,7 +189,7 @@ End Function
 Function WaitFinishedFight()
 Dim Timer
 Dim result
-Dim WaitTimer = 30
+Dim WaitTimer = 40
 Dim msg
 
 Timer = 0
@@ -380,6 +383,6 @@ SlideSkill (RoleNumber)
 Delay ClickDelay
 ClickSkill (2)
 Delay ClickDelay
-ClickRole (RoleNumber)
-Delay ClickDelay
+//ClickRole (RoleNumber)
+//Delay ClickDelay
 End Function
