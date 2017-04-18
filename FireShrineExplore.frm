@@ -26,8 +26,8 @@ Dim SecondMapCount = 15
 Dim ChangeMap = false
 
 Dim Xon = 2
-Dim XonWaylay = 6
-Dim SummonRole = 6
+Dim XonWaylay = 4
+Dim SummonRole = 1
 
 //////////
 // Main //
@@ -153,7 +153,7 @@ Function MovingUp(px, py, color)
   Exit Function
   End If
   TouchDown 358,848, 1
-  TouchMove 358, 448, 1, 100
+  TouchMove 358, 448, 1, 50
   Do
   If CmpColorEx(cmpclr, 0.8) = 1 Then 
   Exit Do
@@ -169,11 +169,11 @@ End Function
 Function MovingDown(px, py, color)
   Dim cmpclr = px & "|" & py & "|" & color
   TracePrint "(MovingDown)"
-  If CmpColorEx(cmpclr, 0.8) = 1 Or CmpColorEx("165|206|4EE8FF", 0.9) = 1 Then
+  If CmpColorEx(cmpclr, 0.8) = 1 Or CmpColorEx("360|1263|678FBF", 0.9) = 1 Then
     Exit Function
   End If
   TouchDown 358,448, 1
-  TouchMove 358, 848, 1, 100
+  TouchMove 358, 848, 1, 50
   Do
   If CmpColorEx(cmpclr, 0.8) = 1 Or CmpColorEx("165|206|4EE8FF", 0.9) = 1 Then
     Exit Do
